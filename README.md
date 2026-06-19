@@ -25,6 +25,7 @@ Then visit `http://localhost:8080`.
 - Deep links to the exact Transport Canada guide section or Canadian Aviation Regulations article
 - Interactive animated square, figure-eight and crosswind student demonstrations
 - Expandable section navigation with direct access to every assessment question
+- Collapsible mobile question drawer that closes automatically after selection
 - Offline filled-PDF generation using the original three-page assessment form
 - Candidate and flight reviewer details, typed signatures, comments, and applicable failure reasons on the completed PDF
 - Supplemental PDF pages for question-level reviewer notes

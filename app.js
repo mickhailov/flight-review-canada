@@ -342,6 +342,17 @@ if(!state.fields.trainingProvider)state.fields.trainingProvider='Volatus Aerospa
 let openSection=flat[state.step].section;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const save=()=>localStorage.setItem('fr-assessment',JSON.stringify(state));
+const mobileNavQuery=window.matchMedia('(max-width: 720px)');
+function setMobileNav(open,returnFocus=false){
+  const enabled=mobileNavQuery.matches&&open;
+  document.body.classList.toggle('mobile-nav-open',enabled);
+  $('#mobileNavToggle').setAttribute('aria-expanded',String(enabled));
+  $('#mobileNavBackdrop').hidden=!enabled;
+  $('#sectionNav').inert=mobileNavQuery.matches&&!enabled;
+  $('#sectionNav').setAttribute('aria-hidden',String(mobileNavQuery.matches&&!enabled));
+  if(enabled)requestAnimationFrame(()=>$('.section-button.active')?.focus());
+  else if(returnFocus)$('#mobileNavToggle').focus();
+}
 
 function sectionProgress(si){
   if(si===0) return eligibilityFields.every(([id])=>state.fields[id])&&eligibilityChecks.every((_,i)=>state.checks[i]!==undefined);
@@ -350,13 +361,14 @@ function sectionProgress(si){
   return indexes.every(i=>state.grades[i]);
 }
 function renderNav(){
+  $('#mobileNavCurrent').textContent=sections[flat[state.step].section].title;
   $('#sectionNav').innerHTML=sections.map((s,i)=>{
     const expanded=openSection===i, current=flat[state.step].section===i, count=i===0?'Gate':s.finalize?'Export':`${s.items.length} fields`;
     const questions=i===0?[{label:'Candidate details and eligibility',step:0}]:s.finalize?[{label:'Reviewer information, signatures and PDF',step:flat.findIndex(x=>x.section===i)}]:s.items.map((item,itemIndex)=>({label:item.text,step:flat.findIndex(x=>x.section===i&&x.item===itemIndex)}));
     return `<div class="section-group ${expanded?'open':''}"><button class="section-button ${current?'active':''} ${sectionProgress(i)?'complete':''}" data-section-toggle="${i}" aria-expanded="${expanded}"><span>${i===0?'ID':String(i).padStart(2,'0')}</span><b>${s.title}</b><div class="section-meta"><small>${count}</small><i aria-hidden="true">⌄</i></div></button><div class="section-questions" ${expanded?'':'inert'}>${questions.map((item,index)=>{const grade=state.grades[item.step];return `<button class="question-nav-item ${state.step===item.step?'current':''}" data-question-step="${item.step}" title="${item.label}"><span>${i===0?'ID':`${i}.${index+1}`}</span><b>${item.label}</b><i class="question-status ${grade||''}" aria-label="${grade?`Graded ${grade}`:'Not graded'}"></i></button>`}).join('')}</div></div>`;
   }).join('');
   $$('[data-section-toggle]').forEach(b=>b.onclick=()=>{const section=+b.dataset.sectionToggle;openSection=openSection===section?-1:section;renderNav()});
-  $$('[data-question-step]').forEach(b=>b.onclick=()=>{state.step=+b.dataset.questionStep;openSection=flat[state.step].section;save();render()});
+  $$('[data-question-step]').forEach(b=>b.onclick=()=>{state.step=+b.dataset.questionStep;openSection=flat[state.step].section;setMobileNav(false);save();render()});
 }
 function eligibilityView(){
   return `<p class="question-kicker">Admission gate</p><h1 class="question-title">Eligibility & documents</h1><p class="question-note">Complete every field from the top of page 1 before beginning assessment item 1.</p><div class="form-grid">${eligibilityFields.map(([id,label,type])=>`<div class="field ${id==='residence'?'full':''}"><label for="${id}">${label}</label><input id="${id}" data-field="${id}" type="${type}" value="${state.fields[id]||''}"></div>`).join('')}</div><div class="eligibility-list">${eligibilityChecks.map((x,i)=>`<div class="eligibility-row"><span>${x}</span><div class="toggle"><button data-check="${i}" data-value="yes" class="${state.checks[i]==='yes'?'selected':''}">Yes</button><button data-check="${i}" data-value="no" class="${state.checks[i]==='no'?'selected':''}">No</button></div></div>`).join('')}</div>`;
@@ -399,7 +411,11 @@ function render(scroll=true){
 }
 $('#previous').onclick=()=>{if(state.step>0){state.step--;save();render()}};
 $('#next').onclick=()=>{if(state.step<flat.length-1){state.step++;save();render()}else window.generateFilledPdf?.()};
+$('#mobileNavToggle').onclick=()=>setMobileNav(!document.body.classList.contains('mobile-nav-open'));
+$('#mobileNavBackdrop').onclick=()=>setMobileNav(false,true);
+mobileNavQuery.addEventListener?.('change',()=>setMobileNav(false));
 $('#reset').onclick=()=>{if(confirm('Reset all candidate fields, grades and notes?')){localStorage.removeItem('fr-assessment');location.reload()}};
-document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;if(e.key==='ArrowRight')$('#next').click();if(e.key==='ArrowLeft')$('#previous').click()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('mobile-nav-open')){setMobileNav(false,true);return}if(e.target.matches('input,textarea'))return;if(e.key==='ArrowRight')$('#next').click();if(e.key==='ArrowLeft')$('#previous').click()});
+setMobileNav(false);
 render();
 window.flightReviewApp={state,sections,flat};
