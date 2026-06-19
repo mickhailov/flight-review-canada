@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#151619">
+  <title>Volatus Aerospace | Advanced RPAS Flight Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="stylesheet" href="brand.css">
+  <link rel="stylesheet" href="maneuvers.css">
+  <link rel="stylesheet" href="navigation.css">
+  <link rel="stylesheet" href="export.css">
+</head>
+<body>
+  <header>
+    <div class="title-block">
+      <img class="volatus-logo" src="assets/volatus-logo-transparent.png" alt="Volatus Aerospace">
+      <span class="brand-divider" aria-hidden="true"></span>
+      <div><b>Flight Review Assessment</b><small>Advanced RPAS Pilot Certificate · Canada</small></div>
+    </div>
+    <div class="overall"><span id="answeredTop">0 / 0</span><small>fields assessed</small></div>
+  </header>
+
+  <main>
+    <aside id="sectionNav" aria-label="Assessment sections"></aside>
+
+    <section class="workspace">
+      <div class="progress"><i id="progressBar"></i></div>
+      <div class="step-meta"><span id="sectionCode">901.63</span><span id="stepCount">Step 1</span></div>
+      <article id="stepCard" aria-live="polite"></article>
+      <div class="controls">
+        <button class="button ghost" id="previous">← Previous</button>
+        <button class="button primary" id="next">Next field →</button>
+      </div>
+    </section>
+
+    <aside class="summary-panel">
+      <p class="label">Assessment status</p>
+      <div class="result" id="result">IN PROGRESS</div>
+      <div class="summary-grid">
+        <div><b id="passCount">0</b><span>Pass</span></div>
+        <div><b id="minorCount">0</b><span>Minor</span></div>
+        <div><b id="majorCount">0</b><span>Major</span></div>
+        <div><b id="criticalCount">0</b><span>Critical</span></div>
+      </div>
+      <div class="definition"><i class="pass"></i><p><b>Pass</b>Meets the stated requirement.</p></div>
+      <div class="definition"><i class="minor"></i><p><b>Minor</b>Inconsequential to task completion.</p></div>
+      <div class="definition"><i class="major"></i><p><b>Major</b>Reduced margin or measurable loss of aim.</p></div>
+      <div class="definition"><i class="critical"></i><p><b>Critical</b>Compromises safety or essential compliance.</p></div>
+      <button class="reset" id="reset">Reset assessment</button>
+    </aside>
+  </main>
+
+  <footer><b>VOLATUS AEROSPACE</b><span>Advanced RPAS Flight Review · Based on FR Assessment Form V3 and Transport Canada sources.</span><a href="https://volatusaerospace.com" target="_blank" rel="noreferrer">volatusaerospace.com ↗</a></footer>
+  <script src="assets/pdf-lib.min.js"></script>
+  <script src="assets/fr-assessment-template.js"></script>
+  <script src="app.js"></script>
+  <script src="pdf-export.js"></script>
+</body>
+</html>

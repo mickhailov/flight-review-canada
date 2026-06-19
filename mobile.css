@@ -1,0 +1,117 @@
+@media (max-width: 720px) {
+  header {
+    height: 64px;
+    padding: 0 max(14px, env(safe-area-inset-left));
+    background: rgba(9, 23, 25, .96);
+    backdrop-filter: blur(14px);
+  }
+
+  .title-block { gap: 10px; min-width: 0; }
+  .title-block .mark { width: 34px; height: 34px; font-size: 17px; flex: none; }
+  .title-block > div { min-width: 0; }
+  .title-block b {
+    font-size: 19px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  main { min-height: calc(100vh - 64px); }
+  #sectionNav {
+    top: 64px;
+    padding: 7px 10px;
+    gap: 6px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    background: rgba(9, 25, 27, .97);
+    backdrop-filter: blur(14px);
+  }
+  #sectionNav::-webkit-scrollbar { display: none; }
+  .section-button {
+    min-width: 148px;
+    min-height: 48px;
+    grid-template-columns: 26px 1fr;
+    padding: 8px 10px;
+    scroll-snap-align: start;
+    border: 1px solid transparent;
+  }
+  .section-button.active { border-color: var(--line); }
+  .section-button span { font-size: 14px; }
+  .section-button b { font-size: 9px; line-height: 1.25; }
+  .section-button small { display: none; }
+
+  .workspace { padding: 16px 12px calc(86px + env(safe-area-inset-bottom)); }
+  .progress { margin: 2px 4px 17px; }
+  .step-meta { margin: 0 4px 12px; font-size: 8px; }
+  #stepCard { padding: 22px 16px; border-radius: 3px; }
+  .question-kicker { font-size: 8px; line-height: 1.5; letter-spacing: 1.3px; }
+  .question-title {
+    font-size: clamp(29px, 9vw, 38px);
+    line-height: .98;
+    margin: 11px 0 18px;
+    overflow-wrap: anywhere;
+  }
+  .question-note { font-size: 12px; }
+
+  .official-answer { margin-top: 20px; }
+  .official-answer summary { padding: 14px; font-size: 10px; line-height: 1.4; }
+  .official-answer p { padding: 0 14px 13px; font-size: 13px; line-height: 1.65; }
+  .source-citation { grid-template-columns: 1fr; gap: 11px; padding: 13px 14px; }
+  .source-citation b { font-size: 11px; }
+  .official-answer .source-citation a { width: 100%; min-height: 42px; }
+  .official-answer a {
+    padding: 11px 14px;
+    font-size: 9px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .criteria-title { margin: 26px 0 10px; font-size: 12px; }
+  .criteria-grid { gap: 8px; }
+  .criterion { min-height: 0; padding: 15px 14px; border-radius: 2px; }
+  .criterion strong { font-size: 12px; }
+  .criterion p { font-size: 12px; line-height: 1.55; margin-top: 8px; }
+  .criterion.selected { box-shadow: inset 4px 0 var(--level); }
+
+  .notes-label { margin-top: 20px; }
+  textarea { min-height: 96px; font-size: 16px; border-radius: 0; }
+  .field input { height: 50px; font-size: 16px; }
+  .form-grid { gap: 12px; }
+  .eligibility-row { min-height: 58px; }
+  .eligibility-row span { font-size: 12px; line-height: 1.4; }
+  .toggle button { min-width: 48px; min-height: 42px; font-size: 10px; }
+
+  .controls {
+    position: fixed;
+    z-index: 8;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 10px max(12px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    background: rgba(8, 20, 22, .94);
+    border-top: 1px solid var(--line);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 -14px 34px rgba(0, 0, 0, .28);
+  }
+  .button { min-height: 48px; font-size: 10px; }
+  .button.primary { flex: 1.25; }
+
+  .summary-panel { padding: 28px 16px; }
+  .result { font-size: 34px; }
+  .summary-grid { grid-template-columns: repeat(4, 1fr); }
+  .summary-grid div { border-bottom: 0; padding: 12px 8px; }
+  .summary-grid div:nth-child(2) { border-right: 1px solid var(--line); }
+  .summary-grid b { font-size: 22px; }
+  .definition p { font-size: 10px; }
+  .reset { min-height: 46px; }
+  footer { padding: 14px 16px calc(82px + env(safe-area-inset-bottom)); font-size: 8px; }
+}
+
+@media (max-width: 390px) {
+  .title-block b { font-size: 17px; }
+  .section-button { min-width: 138px; }
+  .question-title { font-size: 29px; }
+  .summary-grid span { letter-spacing: .4px; }
+  .button { font-size: 9px; }
+}

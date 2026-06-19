@@ -1,0 +1,117 @@
+:root {
+  --bg: #0c0d0f;
+  --panel: #17191c;
+  --panel2: #202328;
+  --line: #373a3f;
+  --text: #f7f7f5;
+  --muted: #a2a4a7;
+  --green: #ffb20d;
+  --yellow: #ffb20d;
+  --red: #f15146;
+  --blue: #9bb7c7;
+}
+
+body {
+  background:
+    radial-gradient(circle at 84% 12%, rgba(255, 178, 13, .07), transparent 28%),
+    linear-gradient(135deg, #0c0d0f 0%, #111316 58%, #0a0b0d 100%);
+  font-family: Montserrat, sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  right: -120px;
+  top: 160px;
+  width: 360px;
+  height: 48px;
+  background: linear-gradient(90deg, rgba(255, 178, 13, 0), rgba(255, 178, 13, .11));
+  transform: skewX(-42deg) rotate(-26deg);
+}
+
+header {
+  background: rgba(20, 21, 24, .96);
+  border-bottom-color: #3b3d41;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, .22);
+}
+
+.title-block { gap: 16px; }
+.volatus-logo {
+  display: block;
+  width: 190px;
+  height: 64px;
+  object-fit: contain;
+  object-position: left center;
+}
+.brand-divider { width: 1px; height: 34px; background: #4b4d51; }
+.title-block b { color: #fff; letter-spacing: .8px; }
+.title-block small { color: #a8a9ac; }
+.overall span { color: var(--green); }
+
+#sectionNav, .summary-panel { background: rgba(17, 18, 21, .97); }
+.section-button { border-radius: 0; border-left: 2px solid transparent; }
+.section-button:hover, .section-button.active { background: #24262a; border-left-color: var(--green); }
+.section-button.complete span { color: var(--green); }
+
+.progress { height: 4px; background: #282a2e; }
+.progress i { background: linear-gradient(90deg, #e79200, #ffc64d); }
+#stepCard {
+  background:
+    linear-gradient(135deg, rgba(255, 178, 13, .035), transparent 34%),
+    linear-gradient(145deg, #1d1f23, #131518);
+  border-color: #3d4045;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .22);
+}
+.question-kicker { color: var(--green); }
+.question-title { letter-spacing: .15px; }
+
+.official-answer { background: #15171a; border-color: #65501f; }
+.official-answer summary { color: #ffc13c; }
+.official-answer p { color: #d3d3d0; }
+.official-answer a { color: #dca526; border-top-color: #4d4128; }
+
+.criterion { background: #131518; border-color: #3a3d42; }
+.criterion:hover { border-color: #676a70; }
+.criterion.selected { background: #222429; }
+.criterion[data-grade="pass"] { --level: #ffb20d; }
+.criterion[data-grade="minor"] { --level: #9bb7c7; }
+.criterion[data-grade="major"] { --level: #ff812d; }
+.criterion[data-grade="critical"] { --level: #f15146; }
+
+.field input, textarea { background: #111316; border-color: #3d4045; }
+.toggle button { border-color: #45484d; }
+.toggle button.selected { background: var(--green); border-color: var(--green); color: #141414; }
+.button.primary { background: linear-gradient(135deg, #ffb20d, #ffc644); color: #151515; }
+.button.ghost { border-color: #4a4d52; }
+.summary-grid { border-color: #3d4045; }
+.result { letter-spacing: .5px; }
+
+footer {
+  min-height: 42px;
+  height: auto;
+  gap: 20px;
+  background: #111215;
+  border-top-color: #37393e;
+}
+footer b { color: var(--green); font-size: 9px; letter-spacing: 1.4px; white-space: nowrap; }
+footer span { flex: 1; }
+footer a { color: #b9babc; text-decoration: none; white-space: nowrap; }
+
+@media (max-width: 720px) {
+  header { background: rgba(20, 21, 24, .97); }
+  .title-block { gap: 9px; width: 100%; }
+  .volatus-logo { width: 124px; height: 48px; }
+  .brand-divider { height: 28px; }
+  .title-block b { font-size: 15px; letter-spacing: .4px; }
+  #sectionNav { background: rgba(17, 18, 21, .98); }
+  .section-button.active { border-color: #45484d; border-left-color: var(--green); }
+  .controls { background: rgba(17, 18, 21, .96); }
+  footer { display: grid; gap: 5px; }
+  footer a { margin-top: 3px; }
+}
+
+@media (max-width: 390px) {
+  .volatus-logo { width: 108px; }
+  .title-block b { font-size: 13px; }
+}
