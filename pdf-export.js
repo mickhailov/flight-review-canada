@@ -78,16 +78,18 @@
       });
 
       const grades=Object.values(state.grades),critical=grades.filter(x=>x==='critical').length,major=grades.filter(x=>x==='major').length,complete=grades.length===54;
-      if(critical)mark(pages[2],557.2,590.7,bold,red);else if(complete&&!major)mark(pages[2],557.2,567.1,bold,black);else fitText(pages[2],'REVIEW REQUIRED',500,608,75,bold,6.5,red);
+      if(critical)mark(pages[2],557.2,590.7,bold,red);else if(complete&&!major)mark(pages[2],557.2,567.1,bold,black);
       const selectedReasons={...(state.failureReasons||{})};
       if(critical&&!Object.values(selectedReasons).some(Boolean))selectedReasons[0]=true;
       [591.4,605.3,619.3,633.4,647.3,661.3].forEach((top,index)=>{if(selectedReasons[index])mark(pages[2],499.0,top,bold,red)});
       fitText(pages[2],state.fields.candidateSignature,42,548,240,regular,8,black);
-      drawParagraph(pages[2],state.fields.additionalComments,42,470,520,regular,7.5,9,8,black);
-      fitText(pages[2],state.fields.trainingProvider?`Training provider: ${state.fields.trainingProvider}`:'',42,677,320,regular,7,black);
-      fitText(pages[2],state.fields.reviewerSignature,42,691,175,regular,8,black);
-      fitText(pages[2],state.fields.reviewerName,226,691,180,regular,8,black);
-      fitText(pages[2],state.fields.reviewerTc,446,691,120,regular,8,black);
+      const commentsTop=major&&!critical?482:470;
+      if(major&&!critical)fitText(pages[2],'ASSESSMENT STATUS: REVIEW REQUIRED',42,470,520,bold,7.5,red);
+      drawParagraph(pages[2],state.fields.additionalComments,42,commentsTop,520,regular,7.5,9,major&&!critical?7:8,black);
+      fitText(pages[2],state.fields.trainingProvider?`Training provider: ${state.fields.trainingProvider}`:'',42,661,320,regular,7,black);
+      fitText(pages[2],state.fields.reviewerSignature,42,677,175,regular,8,black);
+      fitText(pages[2],state.fields.reviewerName,226,677,180,regular,8,black);
+      fitText(pages[2],state.fields.reviewerTc,446,677,120,regular,8,black);
       addNotesPages(pdfDoc,notes,regular,bold,black,gold,muted);
 
       pdfDoc.setTitle(`Flight Review Assessment - ${clean(state.fields.candidateName)||'Candidate'}`);pdfDoc.setAuthor('Volatus Aerospace');pdfDoc.setSubject('Advanced RPAS Flight Review Assessment');pdfDoc.setCreator('Volatus Aerospace Flight Review App');
