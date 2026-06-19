@@ -28,6 +28,7 @@ Then visit `http://localhost:8080`.
 - Offline filled-PDF generation using the original three-page assessment form
 - Candidate and flight reviewer details, typed signatures, comments, and applicable failure reasons on the completed PDF
 - Supplemental PDF pages for question-level reviewer notes
+- Final flight-reviewer handoff to the official Transport Canada Drone Management Portal, with submission timing from TP 15395
 - Reviewer notes and locally saved progress
 - Section navigation and live assessment summary
 
