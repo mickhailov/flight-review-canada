@@ -148,7 +148,7 @@ main {
   padding: 12px 14px;
   color: #111214;
   background: var(--level);
-  border: 2px solid var(--level);
+  border: 0;
 }
 .criterion strong { color: inherit; }
 .criterion strong::before { background: currentColor; }
@@ -164,8 +164,7 @@ main {
 .criterion:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .criterion.selected {
   background: var(--level);
-  border-color: #fff;
-  box-shadow: inset 0 0 0 2px #111214, 0 0 0 2px var(--level);
+  box-shadow: inset 0 0 0 3px #111214;
 }
 .official-answer { background: #151617; border-color: #70551a; }
 .field input,
