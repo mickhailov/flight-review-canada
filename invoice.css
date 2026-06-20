@@ -1,0 +1,37 @@
+.submission-flow{display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr;align-items:center;margin:34px 0 18px}
+.submission-flow>i{height:1px;background:#5b4c29}
+.flow-step{display:flex;align-items:center;gap:10px;color:#d5d9d6;font-size:9px;text-transform:uppercase;letter-spacing:.7px}
+.flow-step b{display:grid;place-items:center;width:28px;height:28px;border:1px solid #755e28;color:var(--yellow);font:800 11px "Barlow Condensed"}
+.invoice-builder{border:1px solid #365054;background:#0a1a1c;box-shadow:inset 4px 0 var(--green);padding:24px}
+.invoice-heading{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:22px}
+.invoice-heading span{color:var(--green);font-size:8px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase}
+.invoice-heading h2{margin:5px 0 4px;font:800 28px "Barlow Condensed";text-transform:uppercase}
+.invoice-heading p{max-width:560px;margin:0;color:var(--muted);font-size:9px;line-height:1.5}
+.invoice-heading>strong{font:800 38px "Barlow Condensed";color:var(--green);white-space:nowrap}
+.invoice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.invoice-grid .full{grid-column:1/-1}
+.field select{width:100%;height:44px;border:1px solid var(--line);border-radius:0;background:#091719;color:var(--text);padding:0 12px;outline:none}
+.field select:focus{border-color:var(--green)}
+.invoice-tax-toggle{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);background:#102427;cursor:pointer}
+.invoice-tax-toggle input{width:18px;height:18px;margin:0;accent-color:var(--green)}
+.invoice-tax-toggle span,.invoice-tax-toggle b,.invoice-tax-toggle small{display:block}
+.invoice-tax-toggle b{font-size:10px;text-transform:uppercase;letter-spacing:.6px}
+.invoice-tax-toggle small{margin-top:3px;color:var(--muted);font-size:8px}
+.gst-field.is-hidden{display:none}
+.invoice-breakdown{display:grid;grid-template-columns:repeat(4,1fr);margin-top:20px;border:1px solid var(--line)}
+.invoice-breakdown span{display:flex;flex-direction:column;gap:5px;padding:12px;border-right:1px solid var(--line);color:var(--muted);font-size:8px;text-transform:uppercase;letter-spacing:.7px}
+.invoice-breakdown span:last-child{border-right:0}
+.invoice-breakdown b{color:var(--text);font:700 18px "Barlow Condensed"}
+.invoice-breakdown .invoice-grand-total{background:#172b25}
+.invoice-breakdown .invoice-grand-total b{color:var(--green)}
+.invoice-actions{display:flex;align-items:center;gap:16px;margin-top:20px}
+.portal-buttons{display:grid;gap:8px;min-width:190px}
+.portal-buttons .portal-button{min-height:40px}
+.invoice-email-button{border-color:#7c8f8e;color:#d8dfdd}
+@media(max-width:720px){
+  .submission-flow{grid-template-columns:1fr;gap:8px}.submission-flow>i{width:1px;height:10px;margin-left:14px}
+  .invoice-builder{padding:18px}.invoice-heading{align-items:flex-start;flex-direction:column}.invoice-heading>strong{font-size:32px}
+  .invoice-grid{grid-template-columns:1fr}.invoice-grid .full{grid-column:auto}
+  .invoice-breakdown{grid-template-columns:1fr 1fr}.invoice-breakdown span:nth-child(2){border-right:0}.invoice-breakdown span:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .invoice-actions{align-items:stretch;flex-direction:column}.portal-buttons{width:100%}
+}
