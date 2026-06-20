@@ -17,11 +17,28 @@
     return {state,invoice,rate,travel,subtotal,taxRate,tax,total:subtotal+tax};
   }
   function invoiceNumber(state,invoice){return invoice.number||`VA-${state.fields.reviewDate?.replaceAll('-','')||localIsoDate().replaceAll('-','')}`}
+  function invoiceEmailDetails(){
+    const {state,invoice,total}=values(),number=invoiceNumber(state,invoice);
+    const candidate=state.fields.candidateName?.trim();
+    const reviewer=invoice.businessName||state.fields.reviewerName||'';
+    const subject=`Flight review invoice ${number}`;
+    const body=[
+      'Hello Volatus Academy,',
+      '',
+      `Please find attached invoice ${number} for ${candidate?`the flight review completed for ${candidate}`:'the completed flight review'}.`,
+      '',
+      `Invoice total: ${money(total)}`,
+      '',
+      'The signed assessment has been uploaded to the Volatus Academy Flight Reviewer Portal.',
+      '',
+      'Thank you,',
+      reviewer
+    ].join('\n');
+    return {body,subject};
+  }
 
   window.invoiceEmailHref=function(){
-    const {state,invoice,total}=values(),number=invoiceNumber(state,invoice);
-    const subject=`Flight review invoice ${number}`;
-    const body=`Hello Volatus Academy,\n\nPlease find attached invoice ${number} for ${state.fields.candidateName||'the completed flight review'} in the amount of ${money(total)}. The signed assessment has been uploaded to the Volatus Academy Flight Reviewer Portal.\n\nRegards,\n${invoice.businessName||state.fields.reviewerName||''}`;
+    const {body,subject}=invoiceEmailDetails();
     return `mailto:academy@volatusaerospace.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
@@ -66,11 +83,11 @@
   window.emailInvoice=async function(){
     try{
       const file=await buildInvoicePdf(false);
-      const {state,invoice,total}=values(),number=invoiceNumber(state,invoice);
+      const {body,subject}=invoiceEmailDetails();
       const shareData={
         files:[file],
-        title:`Flight review invoice ${number}`,
-        text:`Invoice ${number} for ${state.fields.candidateName||'the completed flight review'} — ${money(total)}. Send to academy@volatusaerospace.com.`
+        title:subject,
+        text:body
       };
       if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
         setStatus('Choose Mail to send the attached invoice.');
