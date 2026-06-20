@@ -74,7 +74,7 @@ header {
 .criterion { background: #131518; border-color: #3a3d42; }
 .criterion:hover { border-color: #676a70; }
 .criterion.selected { background: #222429; }
-.criterion[data-grade="pass"] { --level: #ffb20d; }
+.criterion[data-grade="pass"] { --level: #3fae6a; }
 .criterion[data-grade="minor"] { --level: #9bb7c7; }
 .criterion[data-grade="major"] { --level: #ff812d; }
 .criterion[data-grade="critical"] { --level: #f15146; }
