@@ -5,7 +5,7 @@
   const clean=value=>String(value||'').replace(/[–—]/g,'-').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[^\x20-\x7E]/g,'?');
   const money=value=>`$${Number(value).toFixed(2)}`;
   const localIsoDate=()=>{const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
-  let activeUrl='',activeName='';
+  let activeUrl='',activeName='',activeFile=null;
   const setStatus=(message,error=false)=>{const el=document.querySelector('#invoiceStatus');if(el){el.textContent=message;el.classList.toggle('error',error)}};
   const restore=()=>{const link=document.querySelector('#downloadInvoice');if(!link||!activeUrl)return;link.href=activeUrl;link.download=activeName;link.hidden=false};
   window.restoreInvoiceDownload=restore;
@@ -25,7 +25,7 @@
     return `mailto:academy@volatusaerospace.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
-  window.generateInvoicePdf=async function(){
+  async function buildInvoicePdf(download=true){
     const button=document.querySelector('#exportInvoice');
     try{
       if(!window.PDFLib)throw new Error('PDF writer did not load.');
@@ -51,13 +51,41 @@
       page.drawText(service,{x:52,y:top-26,size:10,font:bold,color:ink});page.drawText(`Candidate: ${clean(state.fields.candidateName||'Not specified')}  |  Review: ${clean(state.fields.reviewDate||'Not specified')}  |  ${provinces[invoice.province]||invoice.province}`,{x:52,y:top-43,size:7.5,font:regular,color:muted});page.drawText(money(rate),{x:510,y:top-26,size:10,font:bold,color:ink});
       let rowY=top-76;if(travel>0){page.drawLine({start:{x:40,y:rowY+16},end:{x:572,y:rowY+16},thickness:.7,color:line});page.drawText('Approved travel expenses',{x:52,y:rowY,size:9,font:regular,color:ink});page.drawText(money(travel),{x:510,y:rowY,size:9,font:bold,color:ink});rowY-=36}
       page.drawLine({start:{x:350,y:rowY},end:{x:572,y:rowY},thickness:.8,color:line});
-      const summary=[['Subtotal',subtotal],[invoice.taxRegistered?`GST/HST (${(taxRate*100).toFixed(0)}%)`:'GST/HST (not charged)',tax],['TOTAL',total]];
+      const taxName=['NB','NL','NS','ON','PE'].includes(invoice.province)?'HST':'GST';
+      const summary=[['Subtotal',subtotal],[invoice.taxRegistered?`${taxName} (${(taxRate*100).toFixed(0)}%)`:`${taxName} (not charged)`,tax],['TOTAL',total]];
       summary.forEach(([label,value],index)=>{const y=rowY-26-index*31;page.drawText(label,{x:372,y,size:index===2?11:8,font:index===2?bold:regular,color:index===2?ink:muted});page.drawText(money(value),{x:510,y,size:index===2?13:9,font:bold,color:index===2?green:ink})});
       page.drawRectangle({x:40,y:88,width:532,height:82,color:rgb(.90,.93,.90)});page.drawText('SUBMISSION CONFIRMATION',{x:54,y:145,size:8,font:bold,color:green});page.drawText('Transport Canada result updated  /  Signed assessment uploaded to Volatus Academy portal',{x:54,y:122,size:8,font:regular,color:ink});page.drawText('Payment correspondence: academy@volatusaerospace.com',{x:54,y:103,size:8,font:regular,color:muted});
       page.drawText('Thank you',{x:40,y:46,size:9,font:bold,color:ink});page.drawText('Flight reviewer services for Volatus Academy',{x:105,y:46,size:8,font:regular,color:muted});
       pdf.setTitle(`Invoice ${clean(number)}`);pdf.setAuthor(clean(businessName));pdf.setSubject('Volatus Academy flight reviewer services');
-      const output=await pdf.save(),blob=new Blob([output],{type:'application/pdf'});if(activeUrl)URL.revokeObjectURL(activeUrl);activeUrl=URL.createObjectURL(blob);activeName=`invoice-${clean(number).replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.pdf`;restore();document.querySelector('#downloadInvoice')?.click();setStatus(`Invoice ready — ${money(total)}.`);
-    }catch(error){console.error(error);setStatus(error.message||'Unable to generate invoice.',true)}finally{if(button){button.disabled=false;button.textContent='Generate invoice PDF'}}
+      const output=await pdf.save(),blob=new Blob([output],{type:'application/pdf'});if(activeUrl)URL.revokeObjectURL(activeUrl);activeUrl=URL.createObjectURL(blob);activeName=`invoice-${clean(number).replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.pdf`;activeFile=new File([blob],activeName,{type:'application/pdf'});restore();if(download)document.querySelector('#downloadInvoice')?.click();setStatus(`Invoice ready — ${money(total)}.`);return activeFile;
+    }catch(error){console.error(error);setStatus(error.message||'Unable to generate invoice.',true);throw error}finally{if(button){button.disabled=false;button.textContent='Generate invoice PDF'}}
+  }
+
+  window.generateInvoicePdf=()=>buildInvoicePdf(true).catch(()=>{});
+
+  window.emailInvoice=async function(){
+    try{
+      const file=await buildInvoicePdf(false);
+      const {state,invoice,total}=values(),number=invoiceNumber(state,invoice);
+      const shareData={
+        files:[file],
+        title:`Flight review invoice ${number}`,
+        text:`Invoice ${number} for ${state.fields.candidateName||'the completed flight review'} — ${money(total)}. Send to academy@volatusaerospace.com.`
+      };
+      if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
+        setStatus('Choose Mail to send the attached invoice.');
+        await navigator.share(shareData);
+        setStatus('Invoice shared with your email app.');
+        return;
+      }
+      restore();document.querySelector('#downloadInvoice')?.click();
+      setStatus('Invoice downloaded. Attach it to the email that just opened.');
+      window.location.href=window.invoiceEmailHref();
+    }catch(error){
+      if(error?.name==='AbortError'){setStatus('Email cancelled. Your invoice is still ready.');return}
+      console.error(error);
+      if(activeFile){restore();document.querySelector('#downloadInvoice')?.click();setStatus('Invoice downloaded. Attach it to the email that just opened.');window.location.href=window.invoiceEmailHref()}
+    }
   };
   window.addEventListener('beforeunload',()=>{if(activeUrl)URL.revokeObjectURL(activeUrl)});
 })();

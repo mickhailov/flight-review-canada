@@ -87,7 +87,9 @@
       if(major&&!critical)fitText(pages[2],'ASSESSMENT STATUS: REVIEW REQUIRED',42,470,520,bold,7.5,red);
       drawParagraph(pages[2],state.fields.additionalComments,42,commentsTop,520,regular,7.5,9,major&&!critical?7:8,black);
       fitText(pages[2],state.fields.trainingProvider?`Training provider: ${state.fields.trainingProvider}`:'',42,661,320,regular,7,black);
-      fitText(pages[2],state.fields.reviewerName,226,670,180,regular,8,black);
+      fitText(pages[2],state.fields.reviewerSignature,112,700,98,regular,8,black);
+      fitText(pages[2],state.fields.reviewerName,286,700,120,regular,8,black);
+      fitText(pages[2],state.fields.reviewerTc,475,700,100,regular,8,black);
       addNotesPages(pdfDoc,notes,regular,bold,black,gold,muted);
 
       pdfDoc.setTitle(`Flight Review Assessment - ${clean(state.fields.candidateName)||'Candidate'}`);pdfDoc.setAuthor('Volatus Aerospace');pdfDoc.setSubject('Advanced RPAS Flight Review Assessment');pdfDoc.setCreator('Volatus Aerospace Flight Review App');

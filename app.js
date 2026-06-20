@@ -381,6 +381,7 @@ function eligibilityView(){
 }
 function invoiceView(){
   const invoice=state.invoice,rate=invoice.reviewType==='complex'?250:125,travel=Math.max(0,Number(invoice.travel)||0),subtotal=rate+travel,taxRate=invoice.taxRegistered?taxRates[invoice.province]||0:0,tax=subtotal*taxRate,total=subtotal+tax;
+  const taxName=['NB','NL','NS','ON','PE'].includes(invoice.province)?'HST':'GST';
   const invoiceNumber=invoice.number||`VA-${state.fields.reviewDate?.replaceAll('-','')||localIsoDate().replaceAll('-','')}`;
   return `<section class="submission-flow"><div class="flow-step"><b>01</b><span>Update Transport Canada</span></div><i></i><div class="flow-step"><b>02</b><span>Upload signed assessment</span></div><i></i><div class="flow-step"><b>03</b><span>Invoice Academy</span></div></section>
   <section class="invoice-builder"><div class="invoice-heading"><div><span>Reviewer compensation</span><h2>Generate invoice</h2><p>Tax is calculated from the selected place of supply. Only enable tax when you are registered to collect GST/HST.</p></div><strong>$${total.toFixed(2)}</strong></div><div class="invoice-grid">
@@ -390,11 +391,85 @@ function invoiceView(){
   <div class="field"><label for="invoiceTravel">Approved travel expenses</label><input id="invoiceTravel" data-invoice="travel" type="number" min="0" step="0.01" value="${invoice.travel||''}" placeholder="0.00"></div>
   <div class="field"><label for="invoiceBusinessName">Your legal/business name</label><input id="invoiceBusinessName" data-invoice="businessName" value="${invoice.businessName||state.fields.reviewerName||''}"></div>
   <div class="field"><label for="invoiceBusinessEmail">Your email</label><input id="invoiceBusinessEmail" data-invoice="businessEmail" type="email" value="${invoice.businessEmail||''}"></div>
-  <div class="field full"><label for="invoiceBusinessAddress">Your mailing address</label><input id="invoiceBusinessAddress" data-invoice="businessAddress" value="${invoice.businessAddress||''}"></div>
+  <div class="field full address-field"><label for="invoiceBusinessAddress">Your mailing address</label><div class="address-combobox"><input id="invoiceBusinessAddress" data-invoice="businessAddress" value="${escapeAddressText(invoice.businessAddress||'')}" placeholder="Start typing a Canadian address" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="addressSuggestions" aria-expanded="false"><span class="address-search-status" id="addressSearchStatus" role="status" aria-live="polite"></span><div class="address-suggestions" id="addressSuggestions" role="listbox" hidden></div></div><small class="address-field-hint">Search by street address or postal code, or enter it manually.</small></div>
   <label class="invoice-tax-toggle full"><input type="checkbox" data-invoice-check="taxRegistered" ${invoice.taxRegistered?'checked':''}><span><b>Registered to collect GST/HST</b><small>Tax ${(taxRate*100).toFixed(0)}% · ${invoice.province}</small></span></label>
   <div class="field full gst-field ${invoice.taxRegistered?'':'is-hidden'}"><label for="invoiceTaxNumber">GST/HST registration number</label><input id="invoiceTaxNumber" data-invoice="taxNumber" value="${invoice.taxNumber||''}" placeholder="12345 6789 RT0001"></div></div>
-  <div class="invoice-breakdown"><span>Service <b>$${rate.toFixed(2)}</b></span><span>Travel <b>$${travel.toFixed(2)}</b></span><span>GST/HST (${(taxRate*100).toFixed(0)}%) <b>$${tax.toFixed(2)}</b></span><span class="invoice-grand-total">Total <b>$${total.toFixed(2)}</b></span></div><div class="invoice-actions"><button class="export-pdf-button" id="exportInvoice">Generate invoice PDF</button><div class="export-feedback"><span id="invoiceStatus" role="status" aria-live="polite"></span><a id="downloadInvoice" class="download-pdf-link" hidden>Download invoice ↓</a></div></div></section>
-  <section class="portal-handoff"><div><span>Required submission order</span><h2>Update, upload, then invoice</h2><p>Update the Transport Canada portal, upload the signed assessment to Volatus Academy, then email the invoice to academy@volatusaerospace.com.</p><a class="portal-policy" href="${tcGuideUrl}#toc7_6" target="_blank" rel="noreferrer">TP 15395 — Prompt Forwarding of Flight Review Reports ↗</a></div><div class="portal-buttons"><a class="portal-button" href="https://tc.canada.ca/en/aviation/drone-safety/drone-management-portal" target="_blank" rel="noreferrer">1 · Open TC Portal ↗</a><a class="portal-button" href="https://volatusacademy.ca" target="_blank" rel="noreferrer">2 · Open Volatus Portal ↗</a><a class="portal-button invoice-email-button" id="emailInvoice" href="mailto:academy@volatusaerospace.com">3 · Email invoice ↗</a></div></section>`;
+  <div class="invoice-breakdown"><span>Service <b>$${rate.toFixed(2)}</b></span><span>Travel <b>$${travel.toFixed(2)}</b></span><span>${taxName} (${(taxRate*100).toFixed(0)}%) <b>$${tax.toFixed(2)}</b></span><span class="invoice-grand-total">Total <b>$${total.toFixed(2)}</b></span></div><div class="invoice-actions"><button class="export-pdf-button" id="exportInvoice">Generate invoice PDF</button><div class="export-feedback"><span id="invoiceStatus" role="status" aria-live="polite"></span><a id="downloadInvoice" class="download-pdf-link" hidden>Download invoice ↓</a></div></div></section>
+  <section class="portal-handoff"><div><span>Required submission order</span><h2>Update, upload, then invoice</h2><p>Update the Transport Canada portal, upload the signed assessment to Volatus Academy, then attach and email the invoice to academy@volatusaerospace.com.</p><a class="portal-policy" href="${tcGuideUrl}#toc7_6" target="_blank" rel="noreferrer">TP 15395 — Prompt Forwarding of Flight Review Reports ↗</a></div><div class="portal-buttons"><a class="portal-button" href="https://tc.canada.ca/en/aviation/drone-safety/drone-management-portal" target="_blank" rel="noreferrer">1 · Open TC Portal ↗</a><a class="portal-button" href="https://volatusacademy.ca" target="_blank" rel="noreferrer">2 · Open Volatus Portal ↗</a><a class="portal-button invoice-email-button" id="emailInvoice" href="mailto:academy@volatusaerospace.com">3 · Attach & email invoice ↗</a></div></section>`;
+}
+
+function addressLabel(properties){
+  const street=[properties.housenumber,properties.street].filter(Boolean).join(' ');
+  const locality=properties.city||properties.district||properties.county;
+  const region=[properties.state,properties.postcode].filter(Boolean).join(' ');
+  return [street||properties.name,locality,region,properties.country].filter(Boolean).join(', ');
+}
+function escapeAddressText(value){
+  return String(value||'').replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+}
+function wireAddressSearch(){
+  const input=$('#invoiceBusinessAddress'),list=$('#addressSuggestions'),status=$('#addressSearchStatus');
+  if(!input||!list||!status)return;
+  let timer,controller,activeIndex=-1,suggestions=[];
+  const close=()=>{list.hidden=true;list.innerHTML='';input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');activeIndex=-1};
+  const setActive=index=>{
+    const options=[...list.querySelectorAll('[role="option"]')];
+    if(!options.length)return;
+    activeIndex=(index+options.length)%options.length;
+    options.forEach((option,i)=>{option.classList.toggle('is-active',i===activeIndex);option.setAttribute('aria-selected',String(i===activeIndex))});
+    input.setAttribute('aria-activedescendant',options[activeIndex].id);
+    options[activeIndex].scrollIntoView({block:'nearest'});
+  };
+  const select=index=>{
+    const suggestion=suggestions[index];
+    if(!suggestion)return;
+    input.value=suggestion.label;
+    state.invoice.businessAddress=suggestion.label;
+    save();close();status.textContent='Address selected';input.focus();
+  };
+  const show=items=>{
+    suggestions=items;
+    if(!items.length){list.innerHTML='<p class="address-empty">No Canadian addresses found. Keep typing or enter it manually.</p>';list.hidden=false;input.setAttribute('aria-expanded','true');return}
+    list.innerHTML=items.map((item,index)=>`<button type="button" role="option" id="addressSuggestion${index}" aria-selected="false"><span>${escapeAddressText(item.primary)}</span><small>${escapeAddressText(item.secondary)}</small></button>`).join('');
+    list.hidden=false;input.setAttribute('aria-expanded','true');
+    [...list.querySelectorAll('[role="option"]')].forEach((option,index)=>{
+      option.onmousedown=event=>event.preventDefault();
+      option.onclick=()=>select(index);
+      option.onmousemove=()=>setActive(index);
+    });
+  };
+  const search=async query=>{
+    controller?.abort();controller=new AbortController();status.textContent='Searching addresses…';input.classList.add('is-searching');
+    try{
+      const params=new URLSearchParams({q:`${query}, Canada`,limit:'8',lang:'en'});
+      const response=await fetch(`https://photon.komoot.io/api/?${params}`,{signal:controller.signal});
+      if(!response.ok)throw new Error(`Address search returned ${response.status}`);
+      const data=await response.json();
+      const seen=new Set();
+      const items=(data.features||[]).filter(feature=>feature.properties?.countrycode?.toLowerCase()==='ca').map(feature=>{
+        const properties=feature.properties,label=addressLabel(properties);
+        const primary=[properties.housenumber,properties.street].filter(Boolean).join(' ')||properties.name||label;
+        const secondary=[properties.city||properties.district||properties.county,[properties.state,properties.postcode].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
+        return {label,primary,secondary};
+      }).filter(item=>item.label&&!seen.has(item.label)&&seen.add(item.label)).slice(0,6);
+      show(items);status.textContent=items.length?`${items.length} address suggestions`:'No address suggestions';
+    }catch(error){
+      if(error.name!=='AbortError'){close();status.textContent='Address search unavailable — enter the address manually'}
+    }finally{input.classList.remove('is-searching')}
+  };
+  input.addEventListener('input',()=>{
+    clearTimeout(timer);controller?.abort();close();status.textContent='';
+    const query=input.value.trim();
+    if(query.length<3)return;
+    timer=setTimeout(()=>search(query),300);
+  });
+  input.addEventListener('keydown',event=>{
+    if(event.key==='ArrowDown'&&!list.hidden){event.preventDefault();setActive(activeIndex+1)}
+    else if(event.key==='ArrowUp'&&!list.hidden){event.preventDefault();setActive(activeIndex-1)}
+    else if(event.key==='Enter'&&activeIndex>=0&&!list.hidden){event.preventDefault();select(activeIndex)}
+    else if(event.key==='Escape'){close()}
+  });
+  input.addEventListener('blur',()=>setTimeout(close,120));
 }
 function finalizeView(){
   const graded=Object.keys(state.grades).length,critical=Object.values(state.grades).filter(x=>x==='critical').length,major=Object.values(state.grades).filter(x=>x==='major').length;
@@ -431,10 +506,11 @@ function render(scroll=true){
   $$('[data-failure-reason]').forEach(input=>input.onchange=()=>{state.failureReasons[input.dataset.failureReason]=input.checked;save()});
   $$('[data-invoice]').forEach(input=>{input.oninput=()=>{state.invoice[input.dataset.invoice]=input.value;save()};input.onchange=()=>{state.invoice[input.dataset.invoice]=input.value;save();render(false)}});
   $$('[data-invoice-check]').forEach(input=>input.onchange=()=>{state.invoice[input.dataset.invoiceCheck]=input.checked;save();render(false)});
+  wireAddressSearch();
   const notes=$('#notes');if(notes)notes.oninput=()=>{state.notes[state.step]=notes.value;save()};
   const exportButton=$('#exportPdf');if(exportButton)exportButton.onclick=()=>window.generateFilledPdf?.();
   const invoiceButton=$('#exportInvoice');if(invoiceButton)invoiceButton.onclick=()=>window.generateInvoicePdf?.();
-  const emailInvoice=$('#emailInvoice');if(emailInvoice)emailInvoice.href=window.invoiceEmailHref?.()||emailInvoice.href;
+  const emailInvoice=$('#emailInvoice');if(emailInvoice){emailInvoice.href=window.invoiceEmailHref?.()||emailInvoice.href;emailInvoice.onclick=event=>{if(window.emailInvoice){event.preventDefault();window.emailInvoice()}}}
   window.restorePdfDownload?.();
   window.restoreInvoiceDownload?.();
   updateSummary();if(scroll)window.scrollTo({top:0,behavior:'smooth'});
