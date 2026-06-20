@@ -144,7 +144,10 @@ main {
 .criteria-title { color: #fff; }
 .criteria-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .criterion {
-  min-height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
   padding: 12px 14px;
   color: #111214;
   background: var(--level);
@@ -154,7 +157,7 @@ main {
   transition: opacity 160ms ease, filter 160ms ease;
 }
 .criterion strong { color: inherit; }
-.criterion strong::before { background: currentColor; }
+.criterion strong::before { display: none; }
 .criterion p {
   margin-top: 7px;
   color: rgba(17, 18, 20, .72);
