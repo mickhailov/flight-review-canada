@@ -274,7 +274,7 @@ Object.entries(pinpointRefs).forEach(([sectionIndex,list])=>list.forEach((source
 sections[5].items[0].demo='square';
 sections[5].items[1].demo='eight';
 sections[5].items[2].demo='crosswind';
-sections.push({code:'PDF',title:'9. Finalize & export',finalize:true});
+sections.push({code:'SIGN',title:'9. Review & sign',finalize:true});
 
 const droneArt=`<g id="demoArt" class="demo-drone-art">
   <line x1="-13" y1="-13" x2="13" y2="13"/><line x1="13" y1="-13" x2="-13" y2="13"/>
@@ -326,8 +326,6 @@ const eligibilityChecks = ['Citizenship or residency confirmed','Government-issu
 const reviewerFields=[
   ['candidateSignature','Candidate signature (typed)','text'],['reviewerName','Flight reviewer name','text'],['reviewerTc','Flight reviewer TC number','text'],['reviewerSignature','Flight reviewer signature (typed)','text'],['trainingProvider','Training provider','text']
 ];
-const provinceOptions=[['AB','Alberta'],['BC','British Columbia'],['MB','Manitoba'],['NB','New Brunswick'],['NL','Newfoundland and Labrador'],['NS','Nova Scotia'],['NT','Northwest Territories'],['NU','Nunavut'],['ON','Ontario'],['PE','Prince Edward Island'],['QC','Quebec'],['SK','Saskatchewan'],['YT','Yukon']];
-const taxRates={AB:.05,BC:.05,MB:.05,NB:.15,NL:.15,NS:.14,NT:.05,NU:.05,ON:.13,PE:.15,QC:.05,SK:.05,YT:.05};
 const localIsoDate=()=>{const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
 const failureReasonLabels=[
   'Failure of one item during the complete flight review',
@@ -340,11 +338,7 @@ const failureReasonLabels=[
 
 const flat=[]; sections.forEach((section,si)=>{if(section.eligibility)flat.push({section:si,eligibility:true});else if(section.finalize)flat.push({section:si,finalize:true});else section.items.forEach((item,ii)=>flat.push({section:si,item:ii,...item}))});
 const saved=JSON.parse(localStorage.getItem('fr-assessment')||'{}');
-const state={step:Math.min(saved.step||0,flat.length-1),grades:saved.grades||{},notes:saved.notes||{},fields:saved.fields||{},checks:saved.checks||{},failureReasons:saved.failureReasons||{},invoice:saved.invoice||{}};
-if(!state.fields.trainingProvider)state.fields.trainingProvider='Volatus Aerospace';
-if(!state.invoice.reviewType)state.invoice.reviewType='advanced';
-if(!state.invoice.province)state.invoice.province='ON';
-if(state.invoice.taxRegistered===undefined)state.invoice.taxRegistered=true;
+const state={step:Math.min(saved.step||0,flat.length-1),grades:saved.grades||{},notes:saved.notes||{},fields:saved.fields||{},checks:saved.checks||{},failureReasons:saved.failureReasons||{}};
 let openSection=flat[state.step].section;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const save=()=>localStorage.setItem('fr-assessment',JSON.stringify(state));
@@ -369,8 +363,8 @@ function sectionProgress(si){
 function renderNav(){
   $('#mobileNavCurrent').textContent=sections[flat[state.step].section].title;
   $('#sectionNav').innerHTML=sections.map((s,i)=>{
-    const expanded=openSection===i, current=flat[state.step].section===i, count=i===0?'Gate':s.finalize?'Export':`${s.items.length} fields`;
-    const questions=i===0?[{label:'Candidate details and eligibility',step:0}]:s.finalize?[{label:'Reviewer information, signatures and PDF',step:flat.findIndex(x=>x.section===i)}]:s.items.map((item,itemIndex)=>({label:item.text,step:flat.findIndex(x=>x.section===i&&x.item===itemIndex)}));
+    const expanded=openSection===i, current=flat[state.step].section===i, count=i===0?'Gate':s.finalize?'Sign':`${s.items.length} fields`;
+    const questions=i===0?[{label:'Candidate details and eligibility',step:0}]:s.finalize?[{label:'Reviewer information and signatures',step:flat.findIndex(x=>x.section===i)}]:s.items.map((item,itemIndex)=>({label:item.text,step:flat.findIndex(x=>x.section===i&&x.item===itemIndex)}));
     return `<div class="section-group ${expanded?'open':''}"><button class="section-button ${current?'active':''} ${sectionProgress(i)?'complete':''}" data-section-toggle="${i}" aria-expanded="${expanded}"><span>${i===0?'ID':String(i).padStart(2,'0')}</span><b>${s.title}</b><div class="section-meta"><small>${count}</small><i aria-hidden="true">⌄</i></div></button><div class="section-questions" ${expanded?'':'inert'}>${questions.map((item,index)=>{const grade=state.grades[item.step];return `<button class="question-nav-item ${state.step===item.step?'current':''}" data-question-step="${item.step}" title="${item.label}"><span>${i===0?'ID':`${i}.${index+1}`}</span><b>${item.label}</b><i class="question-status ${grade||''}" aria-label="${grade?`Graded ${grade}`:'Not graded'}"></i></button>`}).join('')}</div></div>`;
   }).join('');
   $$('[data-section-toggle]').forEach(b=>b.onclick=()=>{const section=+b.dataset.sectionToggle;openSection=openSection===section?-1:section;renderNav()});
@@ -379,102 +373,11 @@ function renderNav(){
 function eligibilityView(){
   return `<p class="question-kicker">Admission gate</p><h1 class="question-title">Eligibility & documents</h1><p class="question-note">Complete every field from the top of page 1 before beginning assessment item 1.</p><div class="form-grid">${eligibilityFields.map(([id,label,type])=>`<div class="field ${id==='residence'?'full':''}"><label for="${id}">${label}</label><input id="${id}" data-field="${id}" type="${type}" value="${state.fields[id]||''}"></div>`).join('')}</div><div class="eligibility-list">${eligibilityChecks.map((x,i)=>`<div class="eligibility-row"><span>${x}</span><div class="toggle"><button data-check="${i}" data-value="yes" class="${state.checks[i]==='yes'?'selected':''}">Yes</button><button data-check="${i}" data-value="no" class="${state.checks[i]==='no'?'selected':''}">No</button></div></div>`).join('')}</div>`;
 }
-function invoiceView(){
-  const invoice=state.invoice,rate=invoice.reviewType==='complex'?250:125,travel=Math.max(0,Number(invoice.travel)||0),subtotal=rate+travel,taxRate=invoice.taxRegistered?taxRates[invoice.province]||0:0,tax=subtotal*taxRate,total=subtotal+tax;
-  const taxName=['NB','NL','NS','ON','PE'].includes(invoice.province)?'HST':'GST';
-  const invoiceNumber=invoice.number||`VA-${state.fields.reviewDate?.replaceAll('-','')||localIsoDate().replaceAll('-','')}`;
-  return `<section class="submission-flow"><div class="flow-step"><b>01</b><span>Update Transport Canada</span></div><i></i><div class="flow-step"><b>02</b><span>Upload signed assessment</span></div><i></i><div class="flow-step"><b>03</b><span>Invoice Academy</span></div></section>
-  <section class="invoice-builder"><div class="invoice-heading"><div><span>Reviewer compensation</span><h2>Generate invoice</h2><p>Tax is calculated from the selected place of supply. Only enable tax when you are registered to collect GST/HST.</p></div><strong>$${total.toFixed(2)}</strong></div><div class="invoice-grid">
-  <div class="field"><label for="invoiceReviewType">Review service</label><select id="invoiceReviewType" data-invoice="reviewType"><option value="advanced" ${invoice.reviewType==='advanced'?'selected':''}>Advanced RPAS Flight Review — $125</option><option value="complex" ${invoice.reviewType==='complex'?'selected':''}>Level 1 Complex Flight Review — $250</option></select></div>
-  <div class="field"><label for="invoiceNumber">Invoice number</label><input id="invoiceNumber" data-invoice="number" value="${invoiceNumber}"></div>
-  <div class="field"><label for="invoiceProvince">Place of supply</label><select id="invoiceProvince" data-invoice="province">${provinceOptions.map(([code,name])=>`<option value="${code}" ${invoice.province===code?'selected':''}>${name}</option>`).join('')}</select></div>
-  <div class="field"><label for="invoiceTravel">Approved travel expenses</label><input id="invoiceTravel" data-invoice="travel" type="number" min="0" step="0.01" value="${invoice.travel||''}" placeholder="0.00"></div>
-  <div class="field"><label for="invoiceBusinessName">Your legal/business name</label><input id="invoiceBusinessName" data-invoice="businessName" value="${invoice.businessName||state.fields.reviewerName||''}"></div>
-  <div class="field"><label for="invoiceBusinessEmail">Your email</label><input id="invoiceBusinessEmail" data-invoice="businessEmail" type="email" value="${invoice.businessEmail||''}"></div>
-  <div class="field full address-field"><label for="invoiceBusinessAddress">Your mailing address</label><div class="address-combobox"><input id="invoiceBusinessAddress" data-invoice="businessAddress" value="${escapeAddressText(invoice.businessAddress||'')}" placeholder="Start typing a Canadian address" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="addressSuggestions" aria-expanded="false"><span class="address-search-status" id="addressSearchStatus" role="status" aria-live="polite"></span><div class="address-suggestions" id="addressSuggestions" role="listbox" hidden></div></div><small class="address-field-hint">Search by street address or postal code, or enter it manually.</small></div>
-  <label class="invoice-tax-toggle full"><input type="checkbox" data-invoice-check="taxRegistered" ${invoice.taxRegistered?'checked':''}><span><b>Registered to collect GST/HST</b><small>Tax ${(taxRate*100).toFixed(0)}% · ${invoice.province}</small></span></label>
-  <div class="field full gst-field ${invoice.taxRegistered?'':'is-hidden'}"><label for="invoiceTaxNumber">GST/HST registration number</label><input id="invoiceTaxNumber" data-invoice="taxNumber" value="${invoice.taxNumber||''}" placeholder="12345 6789 RT0001"></div></div>
-  <div class="invoice-breakdown"><span>Service <b>$${rate.toFixed(2)}</b></span><span>Travel <b>$${travel.toFixed(2)}</b></span><span>${taxName} (${(taxRate*100).toFixed(0)}%) <b>$${tax.toFixed(2)}</b></span><span class="invoice-grand-total">Total <b>$${total.toFixed(2)}</b></span></div><div class="invoice-actions"><button class="export-pdf-button" id="exportInvoice">Generate invoice PDF</button><div class="export-feedback"><span id="invoiceStatus" role="status" aria-live="polite"></span><a id="downloadInvoice" class="download-pdf-link" hidden>Download invoice ↓</a></div></div></section>
-  <section class="portal-handoff"><div><span>Required submission order</span><h2>Update, upload, then invoice</h2><p>Update the Transport Canada portal, upload the signed assessment to Volatus Academy, then attach and email the invoice to academy@volatusaerospace.com.</p><a class="portal-policy" href="${tcGuideUrl}#toc7_6" target="_blank" rel="noreferrer">TP 15395 — Prompt Forwarding of Flight Review Reports ↗</a></div><div class="portal-buttons"><a class="portal-button" href="https://tc.canada.ca/en/aviation/drone-safety/drone-management-portal" target="_blank" rel="noreferrer">1 · Open TC Portal ↗</a><a class="portal-button" href="https://volatusacademy.ca" target="_blank" rel="noreferrer">2 · Open Volatus Portal ↗</a><a class="portal-button invoice-email-button" id="emailInvoice" href="mailto:academy@volatusaerospace.com">3 · Attach & email invoice ↗</a></div></section>`;
-}
-
-function addressLabel(properties){
-  const street=[properties.housenumber,properties.street].filter(Boolean).join(' ');
-  const locality=properties.city||properties.district||properties.county;
-  const region=[properties.state,properties.postcode].filter(Boolean).join(' ');
-  return [street||properties.name,locality,region,properties.country].filter(Boolean).join(', ');
-}
-function escapeAddressText(value){
-  return String(value||'').replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
-}
-function wireAddressSearch(){
-  const input=$('#invoiceBusinessAddress'),list=$('#addressSuggestions'),status=$('#addressSearchStatus');
-  if(!input||!list||!status)return;
-  let timer,controller,activeIndex=-1,suggestions=[];
-  const close=()=>{list.hidden=true;list.innerHTML='';input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');activeIndex=-1};
-  const setActive=index=>{
-    const options=[...list.querySelectorAll('[role="option"]')];
-    if(!options.length)return;
-    activeIndex=(index+options.length)%options.length;
-    options.forEach((option,i)=>{option.classList.toggle('is-active',i===activeIndex);option.setAttribute('aria-selected',String(i===activeIndex))});
-    input.setAttribute('aria-activedescendant',options[activeIndex].id);
-    options[activeIndex].scrollIntoView({block:'nearest'});
-  };
-  const select=index=>{
-    const suggestion=suggestions[index];
-    if(!suggestion)return;
-    input.value=suggestion.label;
-    state.invoice.businessAddress=suggestion.label;
-    save();close();status.textContent='Address selected';input.focus();
-  };
-  const show=items=>{
-    suggestions=items;
-    if(!items.length){list.innerHTML='<p class="address-empty">No Canadian addresses found. Keep typing or enter it manually.</p>';list.hidden=false;input.setAttribute('aria-expanded','true');return}
-    list.innerHTML=items.map((item,index)=>`<button type="button" role="option" id="addressSuggestion${index}" aria-selected="false"><span>${escapeAddressText(item.primary)}</span><small>${escapeAddressText(item.secondary)}</small></button>`).join('');
-    list.hidden=false;input.setAttribute('aria-expanded','true');
-    [...list.querySelectorAll('[role="option"]')].forEach((option,index)=>{
-      option.onmousedown=event=>event.preventDefault();
-      option.onclick=()=>select(index);
-      option.onmousemove=()=>setActive(index);
-    });
-  };
-  const search=async query=>{
-    controller?.abort();controller=new AbortController();status.textContent='Searching addresses…';input.classList.add('is-searching');
-    try{
-      const params=new URLSearchParams({q:`${query}, Canada`,limit:'8',lang:'en'});
-      const response=await fetch(`https://photon.komoot.io/api/?${params}`,{signal:controller.signal});
-      if(!response.ok)throw new Error(`Address search returned ${response.status}`);
-      const data=await response.json();
-      const seen=new Set();
-      const items=(data.features||[]).filter(feature=>feature.properties?.countrycode?.toLowerCase()==='ca').map(feature=>{
-        const properties=feature.properties,label=addressLabel(properties);
-        const primary=[properties.housenumber,properties.street].filter(Boolean).join(' ')||properties.name||label;
-        const secondary=[properties.city||properties.district||properties.county,[properties.state,properties.postcode].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
-        return {label,primary,secondary};
-      }).filter(item=>item.label&&!seen.has(item.label)&&seen.add(item.label)).slice(0,6);
-      show(items);status.textContent=items.length?`${items.length} address suggestions`:'No address suggestions';
-    }catch(error){
-      if(error.name!=='AbortError'){close();status.textContent='Address search unavailable — enter the address manually'}
-    }finally{input.classList.remove('is-searching')}
-  };
-  input.addEventListener('input',()=>{
-    clearTimeout(timer);controller?.abort();close();status.textContent='';
-    const query=input.value.trim();
-    if(query.length<3)return;
-    timer=setTimeout(()=>search(query),300);
-  });
-  input.addEventListener('keydown',event=>{
-    if(event.key==='ArrowDown'&&!list.hidden){event.preventDefault();setActive(activeIndex+1)}
-    else if(event.key==='ArrowUp'&&!list.hidden){event.preventDefault();setActive(activeIndex-1)}
-    else if(event.key==='Enter'&&activeIndex>=0&&!list.hidden){event.preventDefault();select(activeIndex)}
-    else if(event.key==='Escape'){close()}
-  });
-  input.addEventListener('blur',()=>setTimeout(close,120));
-}
 function finalizeView(){
   const graded=Object.keys(state.grades).length,critical=Object.values(state.grades).filter(x=>x==='critical').length,major=Object.values(state.grades).filter(x=>x==='major').length;
   const status=critical?'FAIL':major?'REVIEW REQUIRED':graded===54?'PASS':'DRAFT';
-  return `<p class="question-kicker">Final step · PDF completion</p><h1 class="question-title">Finalize & export</h1><p class="question-note">Review the final status, enter the signature and flight reviewer information, then generate the completed original assessment PDF. Typed signatures are printed as acknowledgements and are not cryptographic digital signatures.</p><div class="final-status"><span>Final assessment</span><b class="${status==='FAIL'?'fail':status==='PASS'?'pass':''}">${status}</b><small>${graded} of 54 fields graded</small></div><h2 class="criteria-title">Required completion fields</h2><div class="form-grid">${reviewerFields.map(([id,label,type])=>`<div class="field ${id==='trainingProvider'?'full':''}"><label for="${id}">${label}</label><input id="${id}" data-field="${id}" type="${type}" value="${state.fields[id]||''}"></div>`).join('')}</div><label class="notes-label" for="additionalComments">Additional comments for the assessment form</label><textarea id="additionalComments" data-field="additionalComments" placeholder="Overall comments, limitations, debriefing notes...">${state.fields.additionalComments||''}</textarea><h2 class="criteria-title failure-title">Failure reasons (if applicable)</h2><div class="failure-reasons">${failureReasonLabels.map((label,index)=>`<label><input type="checkbox" data-failure-reason="${index}" ${state.failureReasons[index]?'checked':''}><span>${label}</span></label>`).join('')}</div><div class="export-actions"><button class="export-pdf-button" id="exportPdf">Generate filled PDF</button><div class="export-feedback"><span id="exportStatus" role="status" aria-live="polite"></span><a id="downloadPdf" class="download-pdf-link" hidden>Download PDF ↓</a></div></div>${invoiceView()}`;
+  return `<p class="question-kicker">Final step · Review &amp; sign</p><h1 class="question-title">Review &amp; sign</h1><p class="question-note">Check the final status, then record the signature and flight reviewer information. Typed signatures are acknowledgements only and are not cryptographic digital signatures. Everything on this page is stored locally in this browser.</p><div class="final-status"><span>Final assessment</span><b class="${status==='FAIL'?'fail':status==='PASS'?'pass':''}">${status}</b><small>${graded} of 54 fields graded</small></div><h2 class="criteria-title">Required completion fields</h2><div class="form-grid">${reviewerFields.map(([id,label,type])=>`<div class="field ${id==='trainingProvider'?'full':''}"><label for="${id}">${label}</label><input id="${id}" data-field="${id}" type="${type}" value="${state.fields[id]||''}"></div>`).join('')}</div><label class="notes-label" for="additionalComments">Additional comments for the assessment form</label><textarea id="additionalComments" data-field="additionalComments" placeholder="Overall comments, limitations, debriefing notes...">${state.fields.additionalComments||''}</textarea><h2 class="criteria-title failure-title">Failure reasons (if applicable)</h2><div class="failure-reasons">${failureReasonLabels.map((label,index)=>`<label><input type="checkbox" data-failure-reason="${index}" ${state.failureReasons[index]?'checked':''}><span>${label}</span></label>`).join('')}</div>
+  <section class="portal-handoff"><div><span>After the review</span><h2>Report the result to Transport Canada</h2><p>Transfer the results recorded here onto your own flight review report and submit it through the Transport Canada Drone Management Portal without delay.</p><a class="portal-policy" href="${tcGuideUrl}#toc7_6" target="_blank" rel="noreferrer">TP 15395 — Prompt Forwarding of Flight Review Reports ↗</a></div><div class="portal-buttons"><a class="portal-button" href="https://tc.canada.ca/en/aviation/drone-safety/drone-management-portal" target="_blank" rel="noreferrer">Open TC Portal ↗</a></div></section>`;
 }
 function questionView(step){
   const s=sections[step.section];
@@ -498,23 +401,15 @@ function render(scroll=true){
   if(scroll&&window.matchMedia('(max-width: 720px)').matches)requestAnimationFrame(()=>$('.section-button.active')?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}));
   $('#stepCard').innerHTML=step.eligibility?eligibilityView():step.finalize?finalizeView():questionView(step);
   wireManeuverDemo();
-  $('#previous').disabled=state.step===0;$('#next').textContent=step.finalize?'Generate filled PDF':step.section===8&&step.item===8?'Review & sign →':'Next field →';
+  $('#previous').disabled=state.step===0;$('#next').disabled=state.step===flat.length-1;$('#next').textContent=step.finalize?'Review complete':step.section===8&&step.item===8?'Review & sign →':'Next field →';
   $$('[data-grade]').forEach(b=>b.onclick=()=>{state.grades[state.step]=b.dataset.grade;save();render(false)});
   $$('[data-field]').forEach(input=>input.oninput=()=>{state.fields[input.dataset.field]=input.value;save();renderNav()});
   $$('[data-check]').forEach(b=>b.onclick=()=>{state.checks[b.dataset.check]=b.dataset.value;save();render(false)});
   $$('[data-failure-reason]').forEach(input=>input.onchange=()=>{state.failureReasons[input.dataset.failureReason]=input.checked;save()});
-  $$('[data-invoice]').forEach(input=>{input.oninput=()=>{state.invoice[input.dataset.invoice]=input.value;save()};input.onchange=()=>{state.invoice[input.dataset.invoice]=input.value;save();render(false)}});
-  $$('[data-invoice-check]').forEach(input=>input.onchange=()=>{state.invoice[input.dataset.invoiceCheck]=input.checked;save();render(false)});
-  wireAddressSearch();
-  const exportButton=$('#exportPdf');if(exportButton)exportButton.onclick=()=>window.generateFilledPdf?.();
-  const invoiceButton=$('#exportInvoice');if(invoiceButton)invoiceButton.onclick=()=>window.generateInvoicePdf?.();
-  const emailInvoice=$('#emailInvoice');if(emailInvoice){emailInvoice.href=window.invoiceEmailHref?.()||emailInvoice.href;emailInvoice.onclick=event=>{if(window.emailInvoice){event.preventDefault();window.emailInvoice()}}}
-  window.restorePdfDownload?.();
-  window.restoreInvoiceDownload?.();
   updateSummary();if(scroll)window.scrollTo({top:0,behavior:'smooth'});
 }
 $('#previous').onclick=()=>{if(state.step>0){state.step--;save();render()}};
-$('#next').onclick=()=>{if(state.step<flat.length-1){state.step++;save();render()}else window.generateFilledPdf?.()};
+$('#next').onclick=()=>{if(state.step<flat.length-1){state.step++;save();render()}};
 $('#mobileNavToggle').onclick=()=>setMobileNav(!document.body.classList.contains('mobile-nav-open'));
 $('#mobileNavBackdrop').onclick=()=>setMobileNav(false,true);
 mobileNavQuery.addEventListener?.('change',()=>setMobileNav(false));
