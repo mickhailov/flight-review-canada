@@ -37,13 +37,6 @@ header {
 }
 
 .title-block { gap: 16px; }
-.volatus-logo {
-  display: block;
-  width: 190px;
-  height: 64px;
-  object-fit: contain;
-  object-position: left center;
-}
 .brand-divider { width: 1px; height: 34px; background: #4b4d51; }
 .title-block b { color: #fff; letter-spacing: .8px; }
 .title-block small { color: #a8a9ac; }
@@ -101,7 +94,6 @@ footer a { color: #b9babc; text-decoration: none; white-space: nowrap; }
 @media (max-width: 720px) {
   header { background: rgba(20, 21, 24, .97); }
   .title-block { gap: 9px; width: 100%; }
-  .volatus-logo { width: 124px; height: 48px; }
   .brand-divider { height: 28px; }
   .title-block b { font-size: 15px; letter-spacing: .4px; }
   #sectionNav { background: rgba(17, 18, 21, .98); }
@@ -112,6 +104,5 @@ footer a { color: #b9babc; text-decoration: none; white-space: nowrap; }
 }
 
 @media (max-width: 390px) {
-  .volatus-logo { width: 108px; }
   .title-block b { font-size: 13px; }
 }

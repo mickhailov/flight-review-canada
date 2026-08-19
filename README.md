@@ -1,8 +1,8 @@
-# RotorReady
+# Flight Review Assistant
 
-Step-by-step implementation of the supplied three-page Advanced RPAS Flight Review Assessment form.
+Step-by-step assistant for the Advanced RPAS Flight Review Assessment (Canada), based on Transport Canada sources.
 
-Branded for Volatus Aerospace using the official logo embedded in the supplied company flight-review guide.
+Unbranded: it is a helper tool for flight reviewers, not the product of any training provider.
 
 ## Run
 
@@ -26,11 +26,10 @@ Then visit `http://localhost:8080`.
 - Interactive animated square, figure-eight and crosswind student demonstrations
 - Expandable section navigation with direct access to every assessment question
 - Collapsible mobile question drawer that closes automatically after selection
-- Offline filled-PDF generation using the original three-page assessment form
-- Candidate and flight reviewer details, typed signatures, comments, and applicable failure reasons on the completed PDF
-- Supplemental PDF pages for question-level reviewer notes
-- Final flight-reviewer handoff to the official Transport Canada Drone Management Portal, with submission timing from TP 15395
-- Reviewer notes and locally saved progress
-- Section navigation and live assessment summary
+- Final review-and-sign step with reviewer details, typed signatures, comments and applicable failure reasons
+- Handoff reminder to the official Transport Canada Drone Management Portal, with submission timing from TP 15395
+- Locally saved progress (browser storage only — nothing is uploaded)
+
+No PDF generation and no invoicing: the tool records and grades the review, you file the official report yourself.
 
 This is a training aid, not an official Transport Canada publication. Always use the current TP 15395, Canadian Aviation Regulations, aircraft documentation, and authorizations applicable to the operation.

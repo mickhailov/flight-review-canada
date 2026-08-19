@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#151619">
-  <title>Volatus Aerospace | Advanced RPAS Flight Review</title>
+  <title>Advanced RPAS Flight Review Assistant</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,21 +14,20 @@
   <link rel="stylesheet" href="maneuvers.css">
   <link rel="stylesheet" href="navigation.css">
   <link rel="stylesheet" href="export.css">
-  <link rel="stylesheet" href="invoice.css">
   <link rel="stylesheet" href="reference-match.css">
 </head>
 <body>
   <header>
     <div class="title-block">
-      <img class="volatus-logo" src="assets/volatus-logo-transparent.png" alt="Volatus Aerospace">
+      <div class="mark" aria-hidden="true">FR</div>
       <span class="brand-divider" aria-hidden="true"></span>
-      <div><small class="brand-kicker">Academy / Flight operations</small><b>Flight Review Assessment</b><small>Advanced RPAS Pilot Certificate · Canada</small></div>
+      <div><small class="brand-kicker">Flight review assistant</small><b>Flight Review Assessment</b><small>Advanced RPAS Pilot Certificate · Canada</small></div>
     </div>
     <div class="overall"><span id="answeredTop">0 / 0</span><small>fields assessed</small></div>
   </header>
 
   <button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-controls="sectionNav" aria-expanded="false">
-    <span>Questions</span><b id="mobileNavCurrent">Eligibility & documents</b><i aria-hidden="true">⌄</i>
+    <span>Questions</span><b id="mobileNavCurrent">Eligibility &amp; documents</b><i aria-hidden="true">⌄</i>
   </button>
   <button class="mobile-nav-backdrop" id="mobileNavBackdrop" type="button" aria-label="Close question navigator" hidden></button>
 
@@ -62,11 +61,7 @@
     </aside>
   </main>
 
-  <footer><b>VOLATUS AEROSPACE</b><span>Advanced RPAS Flight Review · Based on FR Assessment Form V3 and Transport Canada sources.</span><a href="https://volatusaerospace.com" target="_blank" rel="noreferrer">volatusaerospace.com ↗</a></footer>
-  <script src="assets/pdf-lib.min.js"></script>
-  <script src="assets/fr-assessment-template.js"></script>
+  <footer><b>FLIGHT REVIEW</b><span>Advanced RPAS Flight Review · Based on Transport Canada sources.</span><a href="https://tc.canada.ca/en/aviation/publications/flight-reviewer-s-guide-pilots-remotely-piloted-aircraft-systems" target="_blank" rel="noreferrer">TP 15395 ↗</a></footer>
   <script src="app.js"></script>
-  <script src="pdf-export.js"></script>
-  <script src="invoice-export.js"></script>
 </body>
 </html>
