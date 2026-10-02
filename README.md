@@ -28,8 +28,9 @@ Then visit `http://localhost:8080`.
 - Collapsible mobile question drawer that closes automatically after selection
 - Final review-and-sign step with reviewer details, typed signatures, comments and applicable failure reasons
 - Handoff reminder to the official Transport Canada Drone Management Portal, with submission timing from TP 15395
+- Offline filled-PDF generation on the three-page assessment form (FR Assessment Form V3, pdf-lib)
 - Locally saved progress (browser storage only — nothing is uploaded)
 
-No PDF generation and no invoicing: the tool records and grades the review, you file the official report yourself.
+No invoicing: the tool records and grades the review and fills the assessment PDF; you file the official report yourself.
 
 This is a training aid, not an official Transport Canada publication. Always use the current TP 15395, Canadian Aviation Regulations, aircraft documentation, and authorizations applicable to the operation.
