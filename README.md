@@ -1,5 +1,7 @@
 # Flight Review Assistant
 
+> **Archived 2026-10-02.** Where it lives, how to restore, edit, deploy and migrate: [ARCHIVE.md](ARCHIVE.md).
+
 Step-by-step assistant for the Advanced RPAS Flight Review Assessment (Canada), based on Transport Canada sources.
 
 Unbranded: it is a helper tool for flight reviewers, not the product of any training provider.
